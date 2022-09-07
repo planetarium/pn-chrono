@@ -14,7 +14,7 @@ export default class Wallet {
         this.api = new Graphql()
         this.storage = new Storage(passphrase)
         this.passphrase = passphrase
-        this.canCall = ['createSequentialWallet', 'createPrivateKeyWallet', 'sendNCG', 'bridgeWNCG', 'nextNonce', 'getPrivateKey']
+        this.canCall = ['createSequentialWallet', 'createPrivateKeyWallet', 'sendPNG', 'nextNonce', 'getPrivateKey']
     }
     canCallExternal(method) {
         return this.canCall.indexOf(method) >= 0
@@ -63,40 +63,42 @@ export default class Wallet {
 
         return {address, encryptedWallet}
     }
-    async _transferNCG(sender, receiver, amount, nonce, memo) {
+    async _transferPNG(sender, receiver, amount, nonce, memo) {
         if (!await this.isValidNonce(nonce)) {
             throw 'Invalid Nonce'
         }
 
         let senderEncryptedWallet = await this.storage.secureGet(ENCRYPTED_WALLET + sender.toLowerCase())
         let wallet = await this.decryptWallet(senderEncryptedWallet)
+        const png = {
+            decimals: 18,
+            minters: null,
+            ticker: 'PNG',
+            totalSupplyTrackable: true,
+        };
+        const multiplier = Web3.utils.toBN(10).pow(Web3.utils.toBN(18));
         const plainValue = {
-            type_id: "transfer_asset2",
+            type_id: "TransferAsset",
             values: {
-                amount: [
-                    {
-                        decimalPlaces: Buffer.from([0x02]),
-                        minters: [this.hexToBuffer("47d082a115c63e7b58b1532d20e631538eafadde")],
-                        ticker: 'NCG'
-                    },
-                    Number((amount * 100).toFixed())
+                Amount: [
+                    png,
+                    BigInt(Web3.utils.toBN(amount).mul(multiplier).toString()),
                 ],
-                ...(memo ? { memo } : {}),
-                recipient: this.hexToBuffer(receiver),
-                sender: this.hexToBuffer(wallet.address)
+                Sender: this.hexToBuffer(sender),
+                Recipient: this.hexToBuffer(receiver),
             }
         };
-        let {transaction:{createUnsignedTx:unsignedTx}} = await this.api.unsignedTx(encode(plainValue).toString('base64'), this.hexToBuffer(wallet.publicKey).toString('base64'))
-        let unsignedTxId = crypto.createHash('sha256').update(unsignedTx, 'base64').digest();
+        let unsignedTx = await this.api.unsignedTx(encode(plainValue).toString('hex'), this.hexToBuffer(wallet.publicKey).toString('hex'))
+        const hasher = crypto.createHash('sha256');
+        let unsignedTxId = hasher.update(unsignedTx, 'hex').digest();
 
         return await new Promise((resolve, reject) => {
             try {
-                eccrypto.sign(this.hexToBuffer(wallet.privateKey), unsignedTxId).then(async sig => {
+                eccrypto.sign(this.hexToBuffer(wallet.privateKey), unsignedTxId).then(async sign => {
                     try {
-                        let sign = sig
-                        const base64Sign = sign.toString('base64')
-                        const {transaction: {attachSignature: tx}} = await this.api.attachSignature(unsignedTx, base64Sign);
-                        const {data:{stageTxV2:txId}, endpoint} = await this.api.stageTx(tx);
+                        const signHex = sign.toString('hex');
+                        const tx = await this.api.bindSignature(unsignedTx, signHex);
+                        const {txId, endpoint} = await this.api.stageTx(tx);
                         resolve({txId, endpoint})
                     } catch(e) {
                         reject(e)
@@ -108,33 +110,12 @@ export default class Wallet {
         })
     }
 
-    async sendNCG(sender, receiver, amount, nonce) {
-        let {txId, endpoint} = await this._transferNCG(sender, receiver, amount, nonce)
+    async sendPNG(sender, receiver, amount, nonce) {
+        let {txId, endpoint} = await this._transferPNG(sender, receiver, amount, nonce)
         let result = {
             id: txId,
             endpoint,
             status: 'STAGING',
-            type: 'transfer_asset2',
-            timestamp: +new Date,
-            signer: sender,
-            data: {
-                sender: sender,
-                receiver: receiver,
-                amount: amount
-            }
-        }
-
-        await this.addPendingTxs(result)
-        return result
-    }
-
-    async bridgeWNCG(sender, receiver, amount, nonce) {
-        let {txId, endpoint} = await this._transferNCG(sender, '0x9093dd96c4bb6b44a9e0a522e2de49641f146223', amount, nonce, receiver)
-        let result = {
-            id: txId,
-            endpoint,
-            status: 'STAGING',
-            action: 'bridgeWNCG',
             type: 'transfer_asset2',
             timestamp: +new Date,
             signer: sender,

@@ -713,7 +713,6 @@ export default {
 <span class="fstat-no" title="function not covered" >        as</span>ync checkAccountActivated({state, commit}, {address}) {
             let found = <span class="cstat-no" title="statement not covered" >state.accounts.find(<span class="fstat-no" title="function not covered" >a </span>=&gt; <span class="cstat-no" title="statement not covered" >utils.equalsHex(a.address, address))</span></span>
 <span class="cstat-no" title="statement not covered" >            if (found &amp;&amp; !found.activated) {</span>
-                let activated = <span class="cstat-no" title="statement not covered" >await bg.graphql('getActivationStatus', address)</span>
 <span class="cstat-no" title="statement not covered" >                console.log('act', activated)</span>
 <span class="cstat-no" title="statement not covered" >                if (activated) {</span>
 <span class="cstat-no" title="statement not covered" >                    commit('setAccountActivated', address)</span>

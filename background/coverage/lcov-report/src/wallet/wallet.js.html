@@ -411,7 +411,7 @@ export default class Wallet {
         this.api = new Graphql()
         this.storage = new Storage(passphrase)
         this.passphrase = passphrase
-        this.canCall = ['createSequentialWallet', 'createPrivateKeyWallet', 'sendNCG', 'bridgeWNCG', 'nextNonce', 'getPrivateKey']
+        this.canCall = ['createSequentialWallet', 'createPrivateKeyWallet', 'sendPNG', 'bridgeWNCG', 'nextNonce', 'getPrivateKey']
     }
     canCallExternal(method) {
         return this.canCall.indexOf(method) &gt;= 0
@@ -505,7 +505,7 @@ export default class Wallet {
         })
     }
 &nbsp;
-    async sendNCG(sender, receiver, amount, nonce) {
+    async sendPNG(sender, receiver, amount, nonce) {
         let {txId, endpoint} = await this._transferNCG(sender, receiver, amount, nonce)
         let result = {
             id: txId,

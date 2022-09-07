@@ -6,7 +6,6 @@
     <div class="hex account-address grey--text d-flex align-center">
       <a class="address-link hex" @click="detail.dialog = true">{{shortAddress(account.address)}}</a>
       <copy-btn :text="account.address" icon x-small class="ml-1"><v-icon x-small color="grey">mdi-content-copy</v-icon></copy-btn>
-      <v-btn x-small icon style="margin-top:3px;" target="_blank" :href="'https://9cscan.tx0x.com/address/' + account.address"><v-icon x-small color="grey">mdi-open-in-new</v-icon></v-btn>
     </div>
 
     <v-dialog v-model="edit.dialog" dark width="320px">

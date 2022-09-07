@@ -549,7 +549,7 @@
 &nbsp;
         &lt;v-card-actions class="mt-8 px-8 fixed-bottom"&gt;
           &lt;v-btn color="secondary" class="flex-fill" @click="confirmDialog = false" :disabled="loading"&gt;{{t('cancel')}}&lt;/v-btn&gt;
-          &lt;v-btn color="pointyellow" class="point-btn flex-fill send-btn" @click="sendNCG" :loading="loading"&gt;{{t('transfer')}}&lt;/v-btn&gt;
+          &lt;v-btn color="pointyellow" class="point-btn flex-fill send-btn" @click="sendPNG" :loading="loading"&gt;{{t('transfer')}}&lt;/v-btn&gt;
         &lt;/v-card-actions&gt;
       &lt;/v-card&gt;
     &lt;/v-dialog&gt;
@@ -610,9 +610,9 @@ export default {
                 this.confirmDialog = true
             }
         },
-        async sendNCG() {
+        async sendPNG() {
             this.loading = true
-            let tx = await bg.wallet.sendNCG(this.account.address, this.receiver, this.amount, this.nonce)
+            let tx = await bg.wallet.sendPNG(this.account.address, this.receiver, this.amount, this.nonce)
             await this.$store.dispatch('Account/loadTxs')
             this.loading = false
             this.$router.replace({name: 'index'})
