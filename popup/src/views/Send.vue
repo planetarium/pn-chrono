@@ -41,12 +41,6 @@
             </v-text-field>
           </v-col>
         </v-row>
-        <v-row class="px-6">
-          <v-col cols="4" class="pb-0 text-left">{{t('feeEstimated')}}</v-col>
-          <v-col class="py-0"><v-text-field color="grey" style="color: grey;" placeholder="0" outlined dark dense readonly>
-            <template v-slot:append><span class="mt-1">NCG</span></template>
-          </v-text-field></v-col>
-        </v-row>
         </v-form>
       </div>
     </div>
@@ -90,19 +84,11 @@
               </div>
             </v-col>
           </v-row>
-          <v-row>
-            <v-col class="text-left py-1">
-              <v-chip small color="#444" label>{{t('feeEstimated')}}</v-chip>
-              <div class="hex pl-2 mt-1">
-                0 NCG
-              </div>
-            </v-col>
-          </v-row>
         </v-card-text>
 
         <v-card-actions class="mt-8 px-8 fixed-bottom">
           <v-btn color="secondary" class="flex-fill" @click="confirmDialog = false" :disabled="loading">{{t('cancel')}}</v-btn>
-          <v-btn color="pointyellow" class="point-btn flex-fill send-btn" @click="sendNCG" :loading="loading">{{t('transfer')}}</v-btn>
+          <v-btn color="pointyellow" class="point-btn flex-fill send-btn" @click="sendPNG" :loading="loading">{{t('transfer')}}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -163,9 +149,9 @@ export default {
                 this.confirmDialog = true
             }
         },
-        async sendNCG() {
+        async sendPNG() {
             this.loading = true
-            let tx = await bg.wallet.sendNCG(this.account.address, this.receiver, this.amount, this.nonce)
+            let tx = await bg.wallet.sendPNG(this.account.address, this.receiver, this.amount, this.nonce)
             await this.$store.dispatch('Account/loadTxs')
             this.loading = false
             this.$router.replace({name: 'index'})

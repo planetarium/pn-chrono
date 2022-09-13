@@ -11,16 +11,10 @@
       <div class="mt-2">
         <v-progress-circular indeterminate color="#555" width="3" size="30" v-if="balanceLoading"></v-progress-circular>
         <div v-else class="d-flex ncg justify-center">
-          <span class="ncg-amount">{{balance}}</span><span class="symbol">NCG</span>
+          <span class="png-amount">{{balance}}</span><span class="symbol">PNG</span>
         </div>
       </div>
       <div class="mt-4">
-        <v-btn dark large color="secondary" class="mx-1 action-btn" :disabled="balanceLoading" @click="$router.replace({name: 'bridge'})">
-          <div>
-            {{t('bridge')}}
-            <div style="font-size: 10px;color:#888;letter-spacing: 0px">WNCG</div>
-          </div>
-        </v-btn>
         <v-btn dark large
                color="pointyellow"
                class="mx-1 action-btn point-btn"
@@ -38,22 +32,6 @@
       </v-card>
       <v-card dark color="#333" class="my-3 tx-card" v-for="tx in accountTxs" :key="tx.id">
         <v-card-text class="pt-2">
-          <div class="d-flex justify-space-between align-baseline">
-            <div>
-              <span class="status mr-2">
-                <v-progress-circular size="12" width="1" color="point" indeterminate v-if="tx.status == 'STAGING'" style="margin-right:-4px;"></v-progress-circular>
-                <v-badge v-else dot :color="tx.status == 'FAILURE' ? 'red': (tx.status == 'SUCCESS' ?'success':'point')"></v-badge>
-                <span class="ml-3" :class="tx.status">{{tx.status}}</span>
-              </span>
-              <span class="tx-type">
-                <span v-if="tx.action === 'bridgeWNCG'">Bridge WNCG</span>
-                <span v-else>{{ tx.type == 'transfer_asset2' ? 'Transfer Asset' : tx.type}}</span>
-              </span>
-            </div>
-            <div style="margin-right: -16px;" class="d-flex align-center">
-              <v-btn text small color="grey" :href="'https://9cscan.tx0x.com/tx/' + tx.id" target="_blank">9cscan<v-icon color="grey" x-small class="ml-1" style="margin-top:3px">mdi-open-in-new</v-icon></v-btn>
-            </div>
-          </div>
           <div class="text-left d-flex align-center mt-1 mb-2" v-if="tx.type=='transfer_asset2'">
             <v-chip label x-small class="tx-sender">
               {{ shortAddress(tx.data.sender) }}
@@ -122,7 +100,7 @@ export default {
   font-size: 20px;
   letter-spacing: -0.3px;
 
-  .ncg-amount {
+  .png-amount {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

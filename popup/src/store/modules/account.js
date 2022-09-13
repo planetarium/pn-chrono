@@ -174,14 +174,9 @@ export default {
         async checkAccountActivated({state, commit}, {address}) {
             let found = state.accounts.find(a => utils.equalsHex(a.address, address))
             if (found && !found.activated) {
-                let activated = await bg.graphql('getActivationStatus', address)
-                console.log('act', activated)
-                if (activated) {
-                    commit('setAccountActivated', address)
-                    commit('selectAccount', address)
-                    await bg.storage.set(ACCOUNTS, state.accounts)
-
-                }
+                commit('setAccountActivated', address)
+                commit('selectAccount', address)
+                await bg.storage.set(ACCOUNTS, state.accounts)
             }
         },
         async refreshBalance({state, commit}, {loading} = {}) {

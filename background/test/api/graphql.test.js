@@ -33,6 +33,5 @@ describe("graphql.js", () => {
 
     test('call test', () => {
         expect(api.getBalance('address')).not.toBeNull()
-        expect(api.getActivationStatus('address')).not.toBeNull()
     })
 })

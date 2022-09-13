@@ -83,11 +83,8 @@ export default {
         createPrivateKeyWallet: async (privateKey) => {
             return await callWallet('createPrivateKeyWallet', [privateKey])
         },
-        sendNCG: async (sender, receiver, amount, nonce) => {
-            return await callWallet('sendNCG', [sender, receiver, amount, nonce])
-        },
-        bridgeWNCG: async (sender, receiver, amount, nonce) => {
-            return await callWallet('bridgeWNCG', [sender, receiver, amount, nonce])
+        sendPNG: async (sender, receiver, amount, nonce) => {
+            return await callWallet('sendPNG', [sender, receiver, amount, nonce])
         },
         nextNonce: async () => {
             return await callWallet('nextNonce')

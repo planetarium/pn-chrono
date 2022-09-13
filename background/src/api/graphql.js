@@ -1,14 +1,12 @@
 import axios from 'axios'
 
 const MAINNET_ENDPOINTS = [
-    'https://mars2.9cscan.com/graphql',
-    'https://mercury2.9cscan.com/graphql',
-    'https://d131807iozwu1d.cloudfront.net/graphql'
+    'http://localhost:38080/graphql',
 ]
 export default class Graphql {
     constructor() {
         this.updateNetwork()
-        this.canCall = ['updateNetwork', 'getLastBlockIndex', 'getBalance', 'getActivationStatus', 'getTransactionStatus']
+        this.canCall = ['updateNetwork', 'getLastBlockIndex', 'getBalance', 'getTransactionStatus']
     }
     canCallExternal(method) {
         return this.canCall.indexOf(method) >= 0
@@ -97,14 +95,19 @@ export default class Graphql {
                 data: {
                     "variables":{"address": address},
                     "query":`
-                  query getBalance($address: Address!) {
-                    goldBalance(address: $address)
+                  query getBalance($address: String!) {
+                    application
+                    {
+                        asset(address: $address)
+                    }
                   }
                 `
                 }
             })
 
-            return data['data']['goldBalance']
+            // it assumes that 'asset' was encoded like '1000 PNG'.
+            // FIXME should be replaced to the proper parse logic.
+            return new Number(data['data']['application']['asset'].split(" ")[0])
         })
     }
 
@@ -117,34 +120,39 @@ export default class Graphql {
                     "variables": {"publicKey": publicKey, "plainValue": plainValue},
                     "query": `
                       query unsignedTx($publicKey: String!, $plainValue: String!) {
-                        transaction {
-                          createUnsignedTx(publicKey: $publicKey, plainValue: $plainValue)
+                        explorer {
+                            transactionQuery {
+                                unsignedTransaction(publicKey: $publicKey, plainValue: $plainValue)
+                            }
                         }
                       }
                     `
                 }
             })
-            return data['data']
+            return data['data']['explorer']['transactionQuery']['unsignedTransaction'];
         })
     }
 
-    async attachSignature(unsignedTx, base64Sign) {
+    async bindSignature(unsignedTx, signHex) {
         return this.callEndpoint(async (endpoint) => {
             let {data} = await axios({
                 method: 'POST',
                 url: endpoint,
                 data: {
-                    "variables": {unsignedTx, signature: base64Sign},
+                    "variables": {unsignedTx, signature: signHex},
                     "query": `
-                      query attachSignature($unsignedTx: String!, $signature: String!) {
-                        transaction {
-                          attachSignature(unsignedTransaction: $unsignedTx, signature: $signature)
+                      query bindSignature($unsignedTx: String!, $signature: String!) {
+                        explorer
+                        {
+                            transactionQuery {
+                                bindSignature(unsignedTransaction: $unsignedTx, signature: $signature)
+                            }
                         }
                       }
                     `
                 }
             })
-            return data['data']
+            return data['data']['explorer']['transactionQuery']['bindSignature']
         })
     }
 
@@ -156,33 +164,19 @@ export default class Graphql {
                 data: {
                     "variables": {payload},
                     "query": `
-                      mutation transfer($payload: String!) {
-                        stageTxV2(payload: $payload)
-                      }
-                    `
-                }
-            })
-            return {data: data['data'], endpoint}
-        })
-    }
-
-    async getActivationStatus(address) {
-        return this.callEndpoint(async (endpoint) => {
-            let {data} = await axios({
-                method: 'POST',
-                url: endpoint,
-                data: {
-                    "variables": {address},
-                    "query": `
-                      query getActivationStatus($address: Address!) {
-                          activationStatus {
-                            addressActivated(address: $address)
-                          }
+                        mutation transfer($payload: String!) {
+                            transaction
+                            {
+                                stage(payload: $payload)
+                                {
+                                    id
+                                }
+                            }
                         }
                     `
                 }
             })
-            return data['data']['activationStatus']['addressActivated']
+            return {txId: data['data']['transfer']['transaction']['stage']['id'], endpoint}
         })
     }
 
