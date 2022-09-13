@@ -66,13 +66,23 @@ module.exports = function(grunt) {
           './popup/'
         ]
       }
+    },
+    concurrent: {
+      runAll: {
+        tasks: ['run:runPopup', 'run:runBg'],
+        options: {
+          logConcurrentOutput: true
+        }
+      }
     }
   });
   grunt.loadNpmTasks('grunt-run');
   grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-concurrent');
   grunt.registerTask('clean', ['run:clean', 'run:mkdir']);
   grunt.registerTask('zip', ['compress:build']);
   grunt.registerTask('popup', ['run:runPopup']);
   grunt.registerTask('background', ['run:runBg']);
+  grunt.registerTask('run-all', ['concurrent:runAll']);
   grunt.registerTask('build', ['clean', 'run:copyManifest', 'run:copyFiles', 'run:buildBg', 'run:buildPopup', 'zip']);
 };

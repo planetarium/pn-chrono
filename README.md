@@ -41,16 +41,16 @@ npm --prefix popup install
 ### 2. Run `popup` and `background` projects
 
 ```bash
-npx grunt popup
-npx grunt background
+npx grunt run-all
 ```
 
-`popup` will opens `8001` and `background` will opens `8002`.
-you can change them via `popup/package.json` and `background/package.json`. in that case, you need to edit below files under `extension` too.
-
-- `extension/manifest.json`
-- `extension/background.html`
-- `extension/popup.html`
+- `run-all` command will start the `popup` and `background` projects simultaneously.
+- `popup` will opens `8001` and `background` will opens `8002`.
+  - You can change them via `popup/package.json` and `background/package.json`. 
+  - In that case, you need to edit below files under `extension` too.
+    - `extension/manifest.json`
+    - `extension/background.html`
+    - `extension/popup.html`
 
 ### 3. Import Chrome Extension (for development)
 
