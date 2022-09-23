@@ -52,15 +52,4 @@ describe("wallet.js", () => {
         expect(result['data']['receiver']).toBe(receiver)
         expect(result['data']['amount']).toBe(100)
     })
-
-    test('Mock bridge NCG test', async () => {
-        let receiver = '0x48BD02A8ADe581A55743646c8880F307F2e8e79D'
-        let result = await wallet.bridgeWNCG(address, receiver, 100, await wallet.nextNonce())
-
-        expect(result['status']).toBe('STAGING')
-        expect(result['signer']).toBe(address)
-        expect(result['data']['sender']).toBe(address)
-        expect(result['data']['receiver']).toBe(receiver)
-        expect(result['data']['amount']).toBe(100)
-    })
 })
