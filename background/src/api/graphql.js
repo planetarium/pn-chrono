@@ -176,7 +176,7 @@ export default class Graphql {
                     `
                 }
             })
-            return {txId: data['data']['transfer']['transaction']['stage']['id'], endpoint}
+            return {txId: data['data']['transaction']['stage']['id'], endpoint}
         })
     }
 
@@ -187,16 +187,18 @@ export default class Graphql {
             data: {
                 "variables": {txId},
                 "query": `
-                  query query($txId: TxId!) {
-                      transaction {
-                        transactionResult(txId: $txId) {
-                          txStatus
+                  query query($txId: ID!) {
+                      explorer {
+                        transactionQuery {
+                          transactionResult(txId: $txId) {
+                            txStatus
+                          }
                         }
                       }
                     }
                 `
             }
         })
-        return data['data']['transaction']['transactionResult']['txStatus']
+        return data['data']['explorer']['transactionQuery']['transactionResult']['txStatus']
     }
 }
