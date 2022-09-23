@@ -41,7 +41,7 @@ describe("wallet.js", () => {
         expect(await wallet.validateSignature(signature, data, address)).toBeTruthy()
     })
 
-    test('Mock send NCG test', async () => {
+    test('Mock send PNG test', async () => {
         let receiver = '0x48BD02A8ADe581A55743646c8880F307F2e8e79D'
         await expect(async () => await wallet.sendPNG(address, 'other', 100, 1)).rejects.toEqual("Invalid Nonce")
         let result = await wallet.sendPNG(address, receiver, 100, await wallet.nextNonce())

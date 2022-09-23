@@ -4,7 +4,7 @@
       <signed-in-header></signed-in-header>
       <div class="text-left px-2 d-flex justify-space-between align-center" style="background-color: #2a2a2a">
         <v-btn icon dark large @click="$router.replace({'name':'index'})"><v-icon color="grey">mdi-arrow-left</v-icon></v-btn>
-        <strong style="font-weight:600">NCG {{t('transfer')}}</strong>
+        <strong style="font-weight:600">PNG {{t('transfer')}}</strong>
         <v-btn icon dark large disabled></v-btn>
       </div>
 
@@ -29,7 +29,7 @@
           <v-col cols="4" class="pb-0 text-left">{{t('balance')}}</v-col>
           <v-col class="py-0 text-left">
             <v-text-field color="grey" style="color: grey" outlined dark dense readonly :placeholder="ncgBalancePlaceholder" :loading="balanceLoading">
-              <template v-slot:append><span class="mt-1">NCG</span></template>
+              <template v-slot:append><span class="mt-1">PNG</span></template>
             </v-text-field>
           </v-col>
         </v-row>
@@ -37,7 +37,7 @@
           <v-col cols="4" class="pb-0 text-left">{{t('amount')}}</v-col>
           <v-col class="py-0">
             <v-text-field :rules="amountRule" validate-on-blur tabindex="2" color="grey" placeholder="0" style="color: grey" outlined dark dense v-model="amount">
-              <template v-slot:append><span class="mt-1">NCG</span></template>
+              <template v-slot:append><span class="mt-1">PNG</span></template>
             </v-text-field>
           </v-col>
         </v-row>
@@ -58,7 +58,7 @@
 
     <v-dialog dark v-model="confirmDialog" fullscreen>
       <v-card>
-        <v-card-title class="py-8">NCG {{t('transfer')}}</v-card-title>
+        <v-card-title class="py-8">PNG {{t('transfer')}}</v-card-title>
         <v-card-text class="mt-4">
           <v-row>
             <v-col class="text-left py-1">
@@ -80,7 +80,7 @@
             <v-col class="text-left py-1">
               <v-chip small color="#444" label>{{t('amount')}}</v-chip>
               <div class="hex pl-2 mt-1">
-                {{amount}} NCG
+                {{amount}} PNG
               </div>
             </v-col>
           </v-row>
