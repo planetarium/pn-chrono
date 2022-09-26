@@ -44,7 +44,7 @@
             </v-chip>
           </div>
           <div class="text-left">
-            <span class="tx-amount">{{ tx.data.amount }} NCG</span>
+            <span class="tx-amount">{{ tx.data.amount }} PNG</span>
           </div>
           <div class="text-left">
             <span class="tx-time">{{timeFormat(moment(tx.timestamp))}}</span>
