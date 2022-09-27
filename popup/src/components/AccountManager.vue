@@ -70,7 +70,7 @@
           </div>
           <div v-else>
             <div class="text-left pa-3 mb-4 mt-4" style="background-color: #444;border-radius:8px;">
-              <span v-if="pkview.hide">********************************************************************************</span>
+              <span v-if="pkview.hide">****************************************************************</span>
               <span v-else>{{pkview.pk}}</span>
               <v-btn small icon small @click="pkview.hide = !pkview.hide"><v-icon small color="grey">{{pkview.hide ? 'mdi-eye-off-outline':'mdi-eye'}}</v-icon></v-btn>
             </div>
@@ -224,6 +224,9 @@ export default {
                         address: this.account.address,
                         passphrase: passphrase
                     })
+                    if (pk.startsWith('0x')) {
+                      pk = pk.substring(2)
+                    }
                     this.pkview.pk = pk
                 } catch(e) {
                     this.pkview.error = 'Invalid Password'
