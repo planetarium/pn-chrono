@@ -145,7 +145,7 @@ export default {
     methods: {
         async confirmSend() {
             if (this.$refs['sendForm'].validate()) {
-                this.nonce = await bg.wallet.nextNonce()
+                this.nonce = await bg.wallet.nextNonce(this.account.address)
                 this.confirmDialog = true
             }
         },

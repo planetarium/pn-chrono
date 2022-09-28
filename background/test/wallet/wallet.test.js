@@ -1,6 +1,6 @@
 import Wallet from "@/wallet/wallet"
 import Mock from "../mock"
-import {ENCRYPTED_WALLET} from "@/constants/constants"
+import { ENCRYPTED_WALLET } from "@/constants/constants"
 const ethers = require("ethers")
 
 Mock.mockGraphql()
@@ -44,7 +44,7 @@ describe("wallet.js", () => {
     test('Mock send PNG test', async () => {
         let receiver = '0x48BD02A8ADe581A55743646c8880F307F2e8e79D'
         await expect(async () => await wallet.sendPNG(address, 'other', 100, 1)).rejects.toEqual("Invalid Nonce")
-        let result = await wallet.sendPNG(address, receiver, 100, await wallet.nextNonce())
+        let result = await wallet.sendPNG(address, receiver, 100, await wallet.nextNonce(address))
 
         expect(result['status']).toBe('STAGING')
         expect(result['signer']).toBe(address)

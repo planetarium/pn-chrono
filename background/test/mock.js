@@ -19,33 +19,34 @@ export default {
     mockGraphql() {
         this.graphql({
             endpoint: 'https://mars2.9cscan.com/graphql/',
-            name:"getLastBlockIndex",
-            data: {"data": {"chainQuery": {"blockQuery": {"blocks": [{"index": 2972520}]}}}}
+            name: 'getLastBlockIndex',
+            data: {data: {explorer: {blockQuery: {blocks: [{index: 2972520}]}}}}
         })
 
         this.graphql({
-            name:"getBalance",
-            data: {"data": {"goldBalance": 100}}
-        })
-        this.graphql({
-            name:"getActivationStatus",
-            data: {"data": {"activationStatus": {"addressActivated": true}}}
+            name: 'getBalance',
+            data: {data: {application: {asset: '100 PNG'}}}
         })
 
         this.graphql({
-            name:"unsignedTx",
-            data: {"data": {transaction:{createUnsignedTx:"unsignedTx"}}}
-        })
-        this.graphql({
-            name:"attachSignature",
-            data: {"data": {transaction: {attachSignature: "tx"}}}
-        })
-        this.graphql({
-            name:"stageTx",
-            data: {data:{stageTxV2:"txId"}}
+            name: 'unsignedTx',
+            data: {data: {explorer: {transactionQuery: {unsignedTransaction: 'unsignedTx'}}}}
         })
 
+        this.graphql({
+            name: 'bindSignature',
+            data: {data: {explorer: {transactionQuery: {attachSignature: 'tx'}}}}
+        })
 
+        this.graphql({
+            name: 'stageTx',
+            data: {data: {transaction: {stage: {id: 'txId'}}}}
+        })
+
+        this.graphql({
+            name: 'getLastNonce',
+            data: {data: {explorer: {transactionQuery: {transactions: [{nonce: 1}], stagedTransactions: [{nonce: 2}]}}}}
+        })
     },
     mockStorage() {
         let data = {}
