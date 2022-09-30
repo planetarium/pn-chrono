@@ -93,7 +93,7 @@
       "message": "브릿지"
    },
    "transactions": {
-      "message": "트랙잰셕 내역"
+      "message": "트랜잭션 내역"
    },
    "close": {
       "message": "닫기"
