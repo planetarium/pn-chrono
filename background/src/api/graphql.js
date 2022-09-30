@@ -73,7 +73,7 @@ export default class Graphql {
                 "variables":{"offset": 0},
                 "query":`
                   query getLastBlockIndex($offset: Int!) {
-                    chainQuery {
+                    explorer {
                       blockQuery {
                         blocks(offset: $offset, limit: 1, desc:true) {
                           index
@@ -84,7 +84,30 @@ export default class Graphql {
                   `
             }
         })
-        return data['data']['chainQuery']['blockQuery']['blocks'][0]['index']
+        return data['data']['explorer']['blockQuery']['blocks'][0]['index']
+    }
+
+    async getGenesisHash() {
+        return this.callEndpoint(async (endpoint) => {
+            let { data } = await axios({
+                method: 'POST',
+                url: endpoint,
+                data: {
+                    "query": `
+                      query getGenesisHash {
+                        explorer {
+                          blockQuery {
+                            block(index: 0) {
+                              hash
+                            }
+                          }
+                        }
+                      }
+                    `
+                },
+            });
+            return data['data']['explorer']['blockQuery']['block']['hash'];
+        });
     }
 
     async getBalance(address) {
@@ -109,6 +132,42 @@ export default class Graphql {
             // FIXME should be replaced to the proper parse logic.
             return new Number(data['data']['application']['asset'].split(" ")[0])
         })
+    }
+
+    async getNextNonce(address) {
+        // FIXME must be replaced with nextNonce query, as this implementation
+        // is extremely inefficient.
+        // Related: https://github.com/planetarium/libplanet/issues/2356
+        return this.callEndpoint(async (endpoint) => {
+            let { data } = await axios({
+                method: 'POST',
+                url: endpoint,
+                data: {
+                    "variables": {"signer": address},
+                    "query": `
+                      query getLastNonce($signer: Address!) {
+                        explorer {
+                          transactionQuery {
+                            transactions(signer: $signer, desc: true, limit: 1) {
+                              nonce
+                            }
+                            stagedTransactions(signer: $signer, desc: true, limit: 1) {
+                              nonce
+                            }
+                          }
+                        }
+                      }
+                    `
+                }
+            });
+            let lastNonce = data['data']['explorer']['transactionQuery']['transactions'].length > 0
+                ? data['data']['explorer']['transactionQuery']['transactions'][0]['nonce']
+                : -1;
+            let stagedNonce = data['data']['explorer']['transactionQuery']['stagedTransactions'].length > 0
+                ? data['data']['explorer']['transactionQuery']['stagedTransactions'][0]['nonce']
+                : -1;
+            return (lastNonce > stagedNonce ? lastNonce : stagedNonce) + 1;
+        });
     }
 
     async unsignedTx(plainValue, publicKey) {

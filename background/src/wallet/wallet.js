@@ -1,13 +1,14 @@
 import crypto from "crypto"
 import Graphql from "@/api/graphql"
 import Storage from "@/storage/storage"
-import {ENCRYPTED_WALLET, TXS} from "@/constants/constants"
+import { ENCRYPTED_WALLET, TXS } from "@/constants/constants"
 import keccak256 from "keccak256"
+import { encodeUnsignedTxWithSystemAction } from "@planetarium/tx"
 
 const Web3 = require('web3')
 const ethers = require('ethers')
 const eccrypto = require("eccrypto")
-const {encode} = require("bencodex")
+const { encode } = require("bencodex")
 
 export default class Wallet {
     constructor(passphrase) {
@@ -25,13 +26,13 @@ export default class Wallet {
     decryptWallet(encryptedWalletJson, passphrase) {
         return ethers.Wallet.fromEncryptedJsonSync(encryptedWalletJson, passphrase || this.passphrase)
     }
-    async isValidNonce(nonce) {
-        let pendingNonce = await this.storage.get('nonce')
+    async isValidNonce(address, nonce) {
+        let pendingNonce = await this.storage.get('nonce' + address)
         return pendingNonce == nonce
     }
-    async nextNonce() {
-        let pendingNonce = String(+new Date).concat(Math.random().toFixed(10).replace('.',''))
-        this.storage.set('nonce', pendingNonce)
+    async nextNonce(address) {
+        let pendingNonce = await this.api.getNextNonce(address);
+        this.storage.set('nonce' + address, pendingNonce)
         return pendingNonce
     }
     async sign(address, data) {
@@ -63,32 +64,41 @@ export default class Wallet {
 
         return {address, encryptedWallet}
     }
-    async _transferPNG(sender, receiver, amount, nonce, memo) {
-        if (!await this.isValidNonce(nonce)) {
+    async _transferPNG(sender, receiver, amount, nonce) {
+        if (!await this.isValidNonce(sender, nonce)) {
             throw 'Invalid Nonce'
         }
 
         let senderEncryptedWallet = await this.storage.secureGet(ENCRYPTED_WALLET + sender.toLowerCase())
         let wallet = await this.decryptWallet(senderEncryptedWallet)
-        const png = {
-            decimals: 18,
-            minters: null,
+        const PNG = {
             ticker: 'PNG',
+            decimalPlaces: 18,
+            minters: null,
             totalSupplyTrackable: true,
+            maximumSupply: null,
         };
         const multiplier = Web3.utils.toBN(10).pow(Web3.utils.toBN(18));
-        const plainValue = {
-            type_id: "TransferAsset",
-            values: {
-                Amount: [
-                    png,
-                    BigInt(Web3.utils.toBN(amount).mul(multiplier).toString()),
-                ],
-                Sender: this.hexToBuffer(sender),
-                Recipient: this.hexToBuffer(receiver),
-            }
-        };
-        let unsignedTx = await this.api.unsignedTx(encode(plainValue).toString('hex'), this.hexToBuffer(wallet.publicKey).toString('hex'))
+        let genesisHash = await this.api.getGenesisHash();
+        let unsignedTx = encode(encodeUnsignedTxWithSystemAction({
+            nonce: BigInt(nonce),
+            publicKey: this.hexToBuffer(wallet.publicKey),
+            signer: this.hexToBuffer(sender),
+            timestamp: new Date(),
+            updatedAddresses: new Set([
+                this.hexToBuffer(sender),
+                this.hexToBuffer(receiver),
+            ]),
+            genesisHash: this.hexToBuffer(genesisHash),
+            systemAction: {
+                type: "transfer",
+                recipient: this.hexToBuffer(receiver),
+                amount: {
+                    rawValue: BigInt(Web3.utils.toBN(amount).mul(multiplier).toString()),
+                    currency: PNG,
+                },
+            },
+        })).toString('hex');
         const hasher = crypto.createHash('sha256');
         let unsignedTxId = hasher.update(unsignedTx, 'hex').digest();
 
