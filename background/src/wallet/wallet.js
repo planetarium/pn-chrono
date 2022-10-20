@@ -4,11 +4,12 @@ import Storage from "@/storage/storage"
 import { ENCRYPTED_WALLET, TXS } from "@/constants/constants"
 import keccak256 from "keccak256"
 import { encodeUnsignedTxWithSystemAction } from "@planetarium/tx"
+import { createAccount } from "@planetarium/account-raw"
+import { signTransaction } from "@planetarium/sign"
 
 const Web3 = require('web3')
 const ethers = require('ethers')
-const eccrypto = require("eccrypto")
-const { encode } = require("bencodex")
+const {encode} = require("bencodex")
 
 export default class Wallet {
     constructor(passphrase) {
@@ -99,25 +100,10 @@ export default class Wallet {
                 },
             },
         })).toString('hex');
-        const hasher = crypto.createHash('sha256');
-        let unsignedTxId = hasher.update(unsignedTx, 'hex').digest();
 
-        return await new Promise((resolve, reject) => {
-            try {
-                eccrypto.sign(this.hexToBuffer(wallet.privateKey), unsignedTxId).then(async sign => {
-                    try {
-                        const signHex = sign.toString('hex');
-                        const tx = await this.api.bindSignature(unsignedTx, signHex);
-                        const {txId, endpoint} = await this.api.stageTx(tx);
-                        resolve({txId, endpoint})
-                    } catch(e) {
-                        reject(e)
-                    }
-                })
-            } catch(e) {
-                reject(e)
-            }
-        })
+        let account = createAccount(wallet.privateKey);
+        let signedTx = await signTransaction(unsignedTx, account);
+        return this.api.stageTx(signedTx);
     }
 
     async sendPNG(sender, receiver, amount, nonce) {

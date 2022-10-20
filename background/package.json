@@ -9,10 +9,11 @@
     "test": "jest --coverage --detectOpenHandles"
   },
   "dependencies": {
+    "@planetarium/account-raw": "^0.0.0",
+    "@planetarium/sign": "^0.0.0",
     "axios": "^0.24.0",
     "bencodex": "^0.1.1",
     "core-js": "^3.6.5",
-    "eccrypto": "^1.1.6",
     "ethers": "^5.5.1",
     "keccak256": "^1.0.3",
     "web3": "^1.6.0",
