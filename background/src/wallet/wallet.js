@@ -103,7 +103,7 @@ export default class Wallet {
             },
         })).toString('hex');
 
-        let account = createAccount(wallet.privateKey.slice(2));
+        let account = createAccount(wallet.privateKey.replace('0x', ''));
         let signedTx = await signTransaction(unsignedTx, account);
         return await this.api.stageTx(signedTx);
     }
