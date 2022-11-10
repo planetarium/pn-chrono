@@ -1,4 +1,3 @@
-import crypto from "crypto"
 import Graphql from "@/api/graphql"
 import Storage from "@/storage/storage"
 import { ENCRYPTED_WALLET, TXS } from "@/constants/constants"
@@ -9,7 +8,7 @@ import { signTransaction } from "@planetarium/sign"
 
 const Web3 = require('web3')
 const ethers = require('ethers')
-const {encode} = require("bencodex")
+const { encode } = require("bencodex")
 
 export default class Wallet {
     constructor(passphrase) {
@@ -86,10 +85,13 @@ export default class Wallet {
             publicKey: this.hexToBuffer(wallet.publicKey),
             signer: this.hexToBuffer(sender),
             timestamp: new Date(),
-            updatedAddresses: new Set([
-                this.hexToBuffer(sender),
-                this.hexToBuffer(receiver),
-            ]),
+            updatedAddresses:
+                sender !== receiver
+                ? new Set([
+                    this.hexToBuffer(sender),
+                    this.hexToBuffer(receiver),
+                ])
+                : new Set([this.hexToBuffer(sender)]),
             genesisHash: this.hexToBuffer(genesisHash),
             systemAction: {
                 type: "transfer",
@@ -101,9 +103,9 @@ export default class Wallet {
             },
         })).toString('hex');
 
-        let account = createAccount(wallet.privateKey);
+        let account = createAccount(wallet.privateKey.replace('0x', ''));
         let signedTx = await signTransaction(unsignedTx, account);
-        return this.api.stageTx(signedTx);
+        return await this.api.stageTx(signedTx);
     }
 
     async sendPNG(sender, receiver, amount, nonce) {
